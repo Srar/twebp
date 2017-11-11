@@ -16,7 +16,7 @@ brew install webp libpng jpeg
 
 ## API Reference
 
-### N_WebPGetFeatures(buffer, bufferLength,callback) 
+### N_WebPGetFeatures(buffer, bufferLength) 
 Get outline from buffer of webp.
 
 * `buffer`: image buffer of webp.
