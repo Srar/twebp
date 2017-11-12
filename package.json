@@ -1,14 +1,22 @@
 {
     "name": "twebp",
     "version": "1.0.0",
-    "description": "",
+    "description": "native module that libwebp for nodejs without memory leaking.",
     "main": "index.js",
     "scripts": {
         "compile": "node-gyp rebuild",
         "test": "npm run compile && ./node_modules/.bin/mocha ./test/test.js --expose-gc"
     },
-    "keywords": [],
-    "author": "",
+    "keywords": ["webp"],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Srar/twebp.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Srar/twebp/issues"
+    },
+    "homepage": "https://github.com/Srar/twebp#readme",
+    "author": "Srar",
     "license": "ISC",
     "dependencies": {
         "co": "^4.6.0",
