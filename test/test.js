@@ -5,13 +5,13 @@ var expect = require('chai').expect;
 
 const addon = require('../build/Release/addon');
 
-// const testDirctory = path.join(__dirname, "test");
-// if (!fs.existsSync(testDirctory)) {
-//     fs.mkdirSync(testDirctory);
-// }
-// fs.readdirSync(testDirctory).forEach(function (file) {
-//     fs.unlinkSync(path.join(testDirctory, file));
-// });
+const testDirctory = path.join(__dirname, "test");
+if (!fs.existsSync(testDirctory)) {
+    fs.mkdirSync(testDirctory);
+}
+fs.readdirSync(testDirctory).forEach(function (file) {
+    fs.unlinkSync(path.join(testDirctory, file));
+});
 
 const jpgBuf = fs.readFileSync(path.join(__dirname, "test.jpg"));
 const pngBuf = fs.readFileSync(path.join(__dirname, "test.png"));
@@ -44,6 +44,18 @@ describe.only('TWebP Test', function () {
         done();
     });
 
+    it('N_WebPEncode PNG with options', function (done) {
+        let pngToWebPBuffer = addon.N_WebPEncode(pngBuf, {
+            quality: 10
+        });
+        fs.writeFileSync(path.join(testDirctory, "test_png.webp"), pngToWebPBuffer);
+        let webpInfo = addon.N_WebPGetFeatures(pngToWebPBuffer);
+        expect(webpInfo.width).to.be.equal(720);
+        expect(webpInfo.height).to.be.equal(801);
+        expect(webpInfo.has_alpha).to.be.equal(1);
+        done();
+    });
+
     it('N_WebPEncode Memory', function (done) {
         this.timeout(100 * 1000);
         process.stdout.write("Plase wait for memory leaking test: ");
@@ -51,7 +63,7 @@ describe.only('TWebP Test', function () {
         var testCount = 1000;
         var processCounter = 0;
         for (let i = 1; i <= testCount; i++) {
-            addon.N_WebPEncode(jpgBuf, jpgBuf.length);
+            addon.N_WebPEncode(jpgBuf);
             if (i % (testCount / 10) == 0) {
                 processCounter += 10;
                 process.stdout.write(`${processCounter}% `);

@@ -12,6 +12,8 @@
 
 #include "./errors_msg.h"
 
+#include "./util.hpp"
+
 void FreeMemory(char *data, void *hint);
 
 class EncodeWorker : public Nan::AsyncWorker
@@ -96,15 +98,21 @@ NAN_METHOD(N_WebPEncodeAsync)
     size_t imageBufferLen = node::Buffer::Length(imageBuffer);
     uint8_t *imageData = (uint8_t *)node::Buffer::Data(imageBuffer);
 
+    WebPConfig *config = new WebPConfig();
+    config->quality = 75;
+
     Nan::Callback *callback = NULL;
-    if(info.Length() == 2) {
+    if (info.Length() == 2)
+    {
         callback = new Nan::Callback(info[1].As<v8::Function>());
-    } else {
+    }
+    else
+    {
+        Util::formatWebPConfig(config, v8::Local<v8::Object>::Cast(info[1]));
         callback = new Nan::Callback(info[2].As<v8::Function>());
     }
 
-    WebPConfig *config = new WebPConfig();
-    if (!WebPConfigPreset(config, WEBP_PRESET_PHOTO, 90))
+    if (!WebPConfigPreset(config, WEBP_PRESET_PHOTO, config->quality))
     {
         return;
     }

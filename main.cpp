@@ -11,6 +11,8 @@
 
 #include "./errors_msg.h"
 
+#include "./util.hpp"
+
 NAN_METHOD(N_WebPGetFeatures)
 {
     if (info.Length() != 1)
@@ -48,7 +50,17 @@ NAN_METHOD(N_WebPEncode)
     }
 
     WebPConfig config;
-    if (!WebPConfigPreset(&config, WEBP_PRESET_PHOTO, 90))
+    config.quality = 75;
+
+    v8::Local<v8::Object> imageBuffer = v8::Local<v8::Object>::Cast(info[0]);
+    size_t imageBufferLen = node::Buffer::Length(imageBuffer);
+    uint8_t *imageData = (uint8_t *)node::Buffer::Data(imageBuffer);
+
+    if(info.Length() == 2) {
+        Util::formatWebPConfig(&config, v8::Local<v8::Object>::Cast(info[1]));
+    }
+
+    if (!WebPConfigPreset(&config, WEBP_PRESET_PHOTO, config.quality))
     {
         return;
     }
@@ -57,10 +69,6 @@ NAN_METHOD(N_WebPEncode)
     WebPPicture *pic = new WebPPicture();
     if (!WebPPictureInit(pic))
         return; // version error
-
-    v8::Local<v8::Object> imageBuffer = v8::Local<v8::Object>::Cast(info[0]);
-    size_t imageBufferLen = node::Buffer::Length(imageBuffer);
-    uint8_t *imageData = (uint8_t *)node::Buffer::Data(imageBuffer);
 
     WebPInputFileFormat imageType = WebPGuessImageType(imageData, imageBufferLen);
 

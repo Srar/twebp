@@ -29,7 +29,8 @@
                 "dec/imageio_util.c",
                 "dec/jpegdec.c",
                 "dec/metadata.c",
-                "dec/pngdec.c"
+                "dec/pngdec.c",
+                "util.cpp"
             ]
         }
     ]
