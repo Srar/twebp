@@ -1,6 +1,6 @@
 {
     "name": "twebp",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "native module that libwebp for nodejs without memory leaking.",
     "main": "index.js",
     "scripts": {
