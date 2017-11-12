@@ -48,11 +48,11 @@ describe.only('TWebP Test', function () {
         this.timeout(100 * 1000);
         process.stdout.write("Plase wait for memory leaking test: ");
         var before = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
-        var testCount = 100;
-        var processCounter = -10;
-        for (let i = 0; i < testCount; i++) {
-            addon.N_WebPEncode(pngBuf, pngBuf.length);
-            if(i % (testCount / 10) == 0) {
+        var testCount = 1000;
+        var processCounter = 0;
+        for (let i = 1; i <= testCount; i++) {
+            addon.N_WebPEncode(jpgBuf, jpgBuf.length);
+            if (i % (testCount / 10) == 0) {
                 processCounter += 10;
                 process.stdout.write(`${processCounter}% `);
                 global.gc();
@@ -88,6 +88,39 @@ describe.only('TWebP Test', function () {
             expect(webpInfo.width).to.be.equal(140);
             expect(webpInfo.height).to.be.equal(108);
             expect(webpInfo.has_alpha).to.be.equal(0);
+            done();
+        });
+    });
+
+    it('N_WebPEncodeAsync Memory', function (done) {
+        this.timeout(100 * 1000);
+
+        function N_WebPEncodeAsync(buf) {
+            return new Promise(function (resolve, reject) {
+                addon.N_WebPEncodeAsync(buf, buf.length, function (err, webpBuf) {
+                    if (err) return reject(err);
+                    resolve(webpBuf);
+                });
+            });
+        }
+
+        co(function* () {
+            process.stdout.write("Plase wait for memory leaking test: ");
+            var before = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
+            var testCount = 1000;
+            var processCounter = 0;
+            for (let i = 1; i <= testCount; i++) {
+                yield N_WebPEncodeAsync(jpgBuf);
+                if (i % (testCount / 10) == 0) {
+                    processCounter += 10;
+                    process.stdout.write(`${processCounter}% `);
+                    global.gc();
+                }
+            }
+            global.gc();
+            var after = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
+            console.log(`\nbefore:${before}MB         after:${after}MB`);
+            if (after - before > 10) return done(new Error("Memory leak!"));
             done();
         });
     });
