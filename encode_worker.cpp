@@ -8,7 +8,7 @@
 #include "./dec/jpegdec.h"
 #include "./dec/imageio_util.h"
 
-#include "./encode_worker.h"
+#include "./encode_worker.hpp"
 
 #include "./errors_msg.h"
 
@@ -86,9 +86,22 @@ class EncodeWorker : public Nan::AsyncWorker
 
 NAN_METHOD(N_WebPEncodeAsync)
 {
-    uint8_t *imageBuffer = (uint8_t *)node::Buffer::Data(info[0]->ToObject());
-    size_t imageBufferLen = (size_t)info[1]->Uint32Value();
-    Nan::Callback *callback = new Nan::Callback(info[2].As<v8::Function>());
+    if (info.Length() > 3 || info.Length() <= 1)
+    {
+        Nan::ThrowError("Wrong number of arguments");
+        return;
+    }
+
+    v8::Local<v8::Object> imageBuffer = v8::Local<v8::Object>::Cast(info[0]);
+    size_t imageBufferLen = node::Buffer::Length(imageBuffer);
+    uint8_t *imageData = (uint8_t *)node::Buffer::Data(imageBuffer);
+
+    Nan::Callback *callback = NULL;
+    if(info.Length() == 2) {
+        callback = new Nan::Callback(info[1].As<v8::Function>());
+    } else {
+        callback = new Nan::Callback(info[2].As<v8::Function>());
+    }
 
     WebPConfig *config = new WebPConfig();
     if (!WebPConfigPreset(config, WEBP_PRESET_PHOTO, 90))
@@ -101,7 +114,7 @@ NAN_METHOD(N_WebPEncodeAsync)
     if (!WebPPictureInit(pic))
         return; // version error
 
-    WebPInputFileFormat imageType = WebPGuessImageType(imageBuffer, imageBufferLen);
+    WebPInputFileFormat imageType = WebPGuessImageType(imageData, imageBufferLen);
 
     if (imageType == WEBP_UNSUPPORTED_FORMAT)
     {
@@ -109,7 +122,7 @@ NAN_METHOD(N_WebPEncodeAsync)
     }
 
     WebPInputFileSize size;
-    if (!GetImageSize(imageType, imageBuffer, &size))
+    if (!GetImageSize(imageType, imageData, &size))
     {
         CallbackError(callback, "Failed to get size of image.");
     }
@@ -123,5 +136,5 @@ NAN_METHOD(N_WebPEncodeAsync)
     }
 
     WebPImageReader reader = WebPGetImageReader(imageType);
-    AsyncQueueWorker(new EncodeWorker(reader, config, pic, imageBuffer, imageBufferLen, callback));
+    AsyncQueueWorker(new EncodeWorker(reader, config, pic, imageData, imageBufferLen, callback));
 }

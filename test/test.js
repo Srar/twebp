@@ -19,7 +19,7 @@ const webpBuf = fs.readFileSync(path.join(__dirname, "test.webp"));
 
 describe.only('TWebP Test', function () {
     it('N_WebPGetFeatures', function (done) {
-        let webpInfo = addon.N_WebPGetFeatures(webpBuf, webpBuf.length);
+        let webpInfo = addon.N_WebPGetFeatures(webpBuf);
         expect(webpInfo.width).to.be.equal(198);
         expect(webpInfo.height).to.be.equal(105);
         expect(webpInfo.has_alpha).to.be.equal(0);
@@ -27,8 +27,8 @@ describe.only('TWebP Test', function () {
     });
 
     it('N_WebPEncode JPEG', function (done) {
-        let jpgToWebPBuffer = addon.N_WebPEncode(jpgBuf, jpgBuf.length);
-        let webpInfo = addon.N_WebPGetFeatures(jpgToWebPBuffer, jpgToWebPBuffer.length);
+        let jpgToWebPBuffer = addon.N_WebPEncode(jpgBuf);
+        let webpInfo = addon.N_WebPGetFeatures(jpgToWebPBuffer);
         expect(webpInfo.width).to.be.equal(140);
         expect(webpInfo.height).to.be.equal(108);
         expect(webpInfo.has_alpha).to.be.equal(0);
@@ -36,8 +36,8 @@ describe.only('TWebP Test', function () {
     });
 
     it('N_WebPEncode PNG', function (done) {
-        let pngToWebPBuffer = addon.N_WebPEncode(pngBuf, pngBuf.length);
-        let webpInfo = addon.N_WebPGetFeatures(pngToWebPBuffer, pngToWebPBuffer.length);
+        let pngToWebPBuffer = addon.N_WebPEncode(pngBuf);
+        let webpInfo = addon.N_WebPGetFeatures(pngToWebPBuffer);
         expect(webpInfo.width).to.be.equal(720);
         expect(webpInfo.height).to.be.equal(801);
         expect(webpInfo.has_alpha).to.be.equal(1);
@@ -66,11 +66,11 @@ describe.only('TWebP Test', function () {
     });
 
     it('N_WebPEncodeAsync PNG', function (done) {
-        addon.N_WebPEncodeAsync(pngBuf, pngBuf.length, function (err, pngToWebPBuffer) {
+        addon.N_WebPEncodeAsync(pngBuf, function (err, pngToWebPBuffer) {
             if (err) {
                 return done(err);
             }
-            let webpInfo = addon.N_WebPGetFeatures(pngToWebPBuffer, pngToWebPBuffer.length);
+            let webpInfo = addon.N_WebPGetFeatures(pngToWebPBuffer);
             expect(webpInfo.width).to.be.equal(720);
             expect(webpInfo.height).to.be.equal(801);
             expect(webpInfo.has_alpha).to.be.equal(1);
@@ -80,11 +80,11 @@ describe.only('TWebP Test', function () {
     });
 
     it('N_WebPEncodeAsync JPEG', function (done) {
-        addon.N_WebPEncodeAsync(jpgBuf, jpgBuf.length, function (err, jpgToWebPBuffer) {
+        addon.N_WebPEncodeAsync(jpgBuf, function (err, jpgToWebPBuffer) {
             if (err) {
                 return done(err);
             }
-            let webpInfo = addon.N_WebPGetFeatures(jpgToWebPBuffer, jpgToWebPBuffer.length);
+            let webpInfo = addon.N_WebPGetFeatures(jpgToWebPBuffer);
             expect(webpInfo.width).to.be.equal(140);
             expect(webpInfo.height).to.be.equal(108);
             expect(webpInfo.has_alpha).to.be.equal(0);
@@ -97,7 +97,7 @@ describe.only('TWebP Test', function () {
 
         function N_WebPEncodeAsync(buf) {
             return new Promise(function (resolve, reject) {
-                addon.N_WebPEncodeAsync(buf, buf.length, function (err, webpBuf) {
+                addon.N_WebPEncodeAsync(buf, function (err, webpBuf) {
                     if (err) return reject(err);
                     resolve(webpBuf);
                 });

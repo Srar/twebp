@@ -73,7 +73,8 @@
         "setjmp.h": "c",
         "encode.h": "c",
         "stdlib.h": "c",
-        "jerror.h": "c"
+        "jerror.h": "c",
+        "imageio_util.h": "c"
     },
     "clang.cxxflags": [
         "-std=c++11",

@@ -7,32 +7,24 @@
 #include "./dec/pngdec.h"
 #include "./dec/jpegdec.h"
 #include "./dec/imageio_util.h"
-#include "./encode_worker.h"
-
-#include <sys/time.h>
+#include "./encode_worker.hpp"
 
 #include "./errors_msg.h"
 
 NAN_METHOD(N_WebPGetFeatures)
 {
-    if (info.Length() != 2)
+    if (info.Length() != 1)
     {
         Nan::ThrowError("Wrong number of arguments");
         return;
     }
 
-    if (!info[1]->IsNumber())
-    {
-        Nan::ThrowError("Wrong type of arguments.");
-        return;
-    }
-
-    uint8_t *imageBuffer = (uint8_t *)node::Buffer::Data(info[0]->ToObject());
-    size_t imageBufferLen = info[1]->Uint32Value();
+    v8::Local<v8::Object> imageBuffer = v8::Local<v8::Object>::Cast(info[0]);
+    size_t imageBufferLen = node::Buffer::Length(imageBuffer);
 
     WebPBitstreamFeatures *webpInfo = new WebPBitstreamFeatures();
 
-    if (WebPGetFeatures(imageBuffer, imageBufferLen, webpInfo) != VP8_STATUS_OK)
+    if (WebPGetFeatures((uint8_t *)node::Buffer::Data(imageBuffer), imageBufferLen, webpInfo) != VP8_STATUS_OK)
     {
         Nan::ThrowError("Can't get info of webp from buffer.");
         return;
@@ -49,6 +41,12 @@ NAN_METHOD(N_WebPGetFeatures)
 
 NAN_METHOD(N_WebPEncode)
 {
+    if (info.Length() > 2 || info.Length() <= 0)
+    {
+        Nan::ThrowError("Wrong number of arguments");
+        return;
+    }
+
     WebPConfig config;
     if (!WebPConfigPreset(&config, WEBP_PRESET_PHOTO, 90))
     {
@@ -60,10 +58,11 @@ NAN_METHOD(N_WebPEncode)
     if (!WebPPictureInit(pic))
         return; // version error
 
-    uint8_t *imageBuffer = (uint8_t *)node::Buffer::Data(info[0]->ToObject());
-    size_t imageBufferLen = (size_t)info[1]->Uint32Value();
+    v8::Local<v8::Object> imageBuffer = v8::Local<v8::Object>::Cast(info[0]);
+    size_t imageBufferLen = node::Buffer::Length(imageBuffer);
+    uint8_t *imageData = (uint8_t *)node::Buffer::Data(imageBuffer);
 
-    WebPInputFileFormat imageType = WebPGuessImageType(imageBuffer, imageBufferLen);
+    WebPInputFileFormat imageType = WebPGuessImageType(imageData, imageBufferLen);
 
     if (imageType == WEBP_UNSUPPORTED_FORMAT)
     {
@@ -72,7 +71,7 @@ NAN_METHOD(N_WebPEncode)
     }
 
     WebPInputFileSize size;
-    if (!GetImageSize(imageType, imageBuffer, &size))
+    if (!GetImageSize(imageType, imageData, &size))
     {
         Nan::ThrowError("Failed to get size of image.");
         return;
@@ -88,7 +87,7 @@ NAN_METHOD(N_WebPEncode)
     }
 
     WebPImageReader reader = WebPGetImageReader(imageType);
-    reader(imageBuffer, imageBufferLen, pic, 1, NULL);
+    reader(imageData, imageBufferLen, pic, 1, NULL);
 
     WebPMemoryWriter *writer = new WebPMemoryWriter();
     pic->writer = WebPMemoryWrite;
