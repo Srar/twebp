@@ -50,14 +50,6 @@ interface WebPEncodeOptions {
     thread_level?: number,
     // If set, reduce memory usage (but increase CPU use).
     low_memory?: number,
-    // Near lossless encoding [0 = max loss .. 100 = off(default)].
-    near_lossless?: number,
-    // if non-zero, preserve the exact RGB values under transparent area. Otherwise, discard this invisible RGB information for better compression. The default value is 0.
-    exact?: number,
-    // reserved for future lossless feature
-    use_delta_palette?: number,
-    // if needed, use sharp (and slow) RGB->YUV conversion
-    use_sharp_yuv?: number,
 }
 
 export function N_WebPGetFeatures(buf: Buffer): {

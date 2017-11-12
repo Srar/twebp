@@ -72,16 +72,4 @@ void Util::formatWebPConfig(WebPConfig *config, v8::Local<v8::Object> obj)
 
     if (!(obj->Get(Nan::New<v8::String>("low_memory").ToLocalChecked())->IsUndefined()))
         config->low_memory = obj->Get(Nan::New<v8::String>("low_memory").ToLocalChecked())->Uint32Value();
-
-    if (!(obj->Get(Nan::New<v8::String>("near_lossless").ToLocalChecked())->IsUndefined()))
-        config->near_lossless = obj->Get(Nan::New<v8::String>("near_lossless").ToLocalChecked())->Uint32Value();
-
-    if (!(obj->Get(Nan::New<v8::String>("exact").ToLocalChecked())->IsUndefined()))
-        config->exact = obj->Get(Nan::New<v8::String>("exact").ToLocalChecked())->Uint32Value();
-
-    if (!(obj->Get(Nan::New<v8::String>("use_delta_palette").ToLocalChecked())->IsUndefined()))
-        config->use_delta_palette = obj->Get(Nan::New<v8::String>("use_delta_palette").ToLocalChecked())->Uint32Value();
-
-    if (!(obj->Get(Nan::New<v8::String>("use_sharp_yuv").ToLocalChecked())->IsUndefined()))
-        config->use_sharp_yuv = obj->Get(Nan::New<v8::String>("use_sharp_yuv").ToLocalChecked())->Uint32Value();
 }
