@@ -14,7 +14,7 @@
                 "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
                 "GCC_ENABLE_CPP_RTTI": "YES",
                 "OTHER_CPLUSPLUSFLAGS": [
-                  
+                    "-O3"
                 ]
             },
             "libraries": [
